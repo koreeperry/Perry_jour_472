@@ -33,3 +33,16 @@ setwd("~/jour472/data_journalism_2026_spring")
 install.packages("tidyverse")
 library(tidyverse)
 ```
+
+```{r}
+## the entire group of data (the md churches0 is grouped by their code according to which code has that many churches in it in descending order
+md_churches |>
+  group_by(NTEE_CD) |>
+  summarise(
+    count = n()
+  ) |>
+  arrange(desc(count))
+```
+
+```
+
