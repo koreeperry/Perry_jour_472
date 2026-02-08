@@ -45,28 +45,41 @@ megachurches <- read_csv("megachurches.csv")
 ```{r}
 md_churches |>
   group_by(NTEE_CD) |>
-  summarise(
-    count = n()
-  ) |>
-  arrange(desc(count))
- 
+arrange(desc(size))
 ```
 
-**Q2** Find out which denomination has the greatest average (mean) size for its megachurches. Your code must show the denomination with the greatest average size first. **A2**
+**Q2** Find out which denomination has the greatest average (mean) size for its megachurches. Your code must show the denomination with the greatest average size first. **Answer is Evangelical Covenant**
 
 ```{r}
 megachurches |>
-  (group_by(denomination))
+  group_by(denomination) |>
+  summarise(
+    total_size = sum(size),
+    mean_size = mean(size),
+  ) |>
+  arrange(desc(mean_size))
 ```
 
-**Q3** Count the number of megachurches for each state and city combination. Which state/city combination has the most megachurches? Which city is the most surprising, and why? **A3**
+**Q3** Count the number of megachurches for each state and city combination. Which state/city combination has the most megachurches? Which city is the most surprising, and why? **Answer is: Houston, Texas has the most megachurches. I am not surprised about this but in that same breath, none of them really surprise me when taking into account locations, the importance of religion for each place/state, and the influx of other cultures and their religious practices. **
 
 ```{r}
+megachurches |>
+  group_by(state, city) |>
+    summarise(
+    count = n()
+) |>
+arrange(desc(count))
 ```
 
-**Q4** Given the results for Q3, what's a story that you could tell with this information? Think broadly, and consider what additional information you might need to make your story stronger. You also should think about what cities and states aren't in the results. **A4**
+**Q4** Given the results for Q3, what's a story that you could tell with this information? Think broadly, and consider what additional information you might need to make your story stronger. You also should think about what cities and states aren't in the results. **Answer is: I think one story idea is te history of megachurches and the influx of them in certain states (like Texas). For this type of story, I'd have to collect data for the actual history of how megachurches came to be in the US, as well as the specific history for states observed.**
 
-**Q5** Take one of the questions you listed in the final question of the pre_lab and try to answer it here in code. If you don't know how to fully answer it, write what code you can and describe in words what else you would need to do. If you got an answer, is it interesting? **A5**
+**Q5** Take one of the questions you listed in the final question of the pre_lab and try to answer it here in code. If you don't know how to fully answer it, write what code you can and describe in words what else you would need to do. If you got an answer, is it interesting? **Answer is: This is the question I chose - Churches in order from smallest to largest. **
 
 ```{r}
+megachurches |>
+  group_by(church_name, size) |>
+  summarise(
+  count = n()
+) |>
+arrange(desc(count))
 ```
