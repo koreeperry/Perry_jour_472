@@ -45,4 +45,33 @@ md_churches |>
 ```
 
 ```
+```{r}
+## filter code can shave everything unnecessary off ##
+## example below ##
+cp_churches <- md_churches |> filter(CITY == "COLLEGE PARK")
+
+## you can also filter out based on a column with a number, like below:
+md_churches_indy <- md_churches |> filter(AFFILIATION == 3)
+## this would be for the churches' specfic affiliation, the 3 is from the IRS codebook
+
+## the 'select" code doesn't't shave how many rows you see, but how many columns you see!!!!! select doesn't change anything abt the data you're looking at, only which column -- you will probably mainly use the filter command, its much better to filter than select, SELECT is much better when you know specifically what you're looking for ##
+```
+```{r}
+##you can use an ampersand or a | (this would be or) to filter a bit more strategically in the code)
+
+cp_churches_ind <- md_churches |> filter(CITY == "COLLEGE PARK" & AFFILIATION == 3)
+
+nrow(cp_churches_ind)
+
+## now for the OR, which means either one would be true, versus ampersand meaning both need to be true
+cp_churches_ind <- md_churches |> filter(CITY == "COLLEGE PARK" | AFFILIATION == 3)
+
+nrow(cp_churches_ind)
+
+##MAKE SURE YOU ARE QUADRUPLE CHECKING WHAT COULD BE WRONG WHEN FILTERING THINGS. humans are imperfect and sometimes things are wrong, meaning soemtiems teh software will be direct according to what was input!!!!!!!!
+
+```
+```{r}
+##to write dates in code, start with year, then month, then day
+```
 
