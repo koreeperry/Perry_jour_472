@@ -1,0 +1,114 @@
+---
+title: "lab_02"
+author: "Derek Willis"
+date: "2026-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+
+Let's keep working with the Maryland churches data and the Maryland campaign expenses data we used in the pre_lab. Write code to load those two CSV files from the data folder.
+
+```{r}
+md_churches <- read_csv("data/churches_md.csv") 
+md_church_expense <- read_csv("data/md_church_expenditures.csv")
+```
+
+## Answer questions
+
+**Q1.** How many churches in Maryland have "ORTHODOX" in their name? Which cities have the most churches with "ORTHODOX" in the name, and how does that compare to city totals for all churches in Maryland?
+
+**Answer pt. 1 is 48.**
+
+```{r}
+md_churches |> 
+  filter(str_detect(NAME, "ORTHODOX"))
+```
+```{r}
+##For second part of question one
+cities_ortho |>
+  group_by(CITY) |>
+  summarise(
+    count = n()
+  ) |>
+  arrange(desc(count))
+##Answer is BALTIMORE & SILVER SPRING**
+```
+
+
+**Q2.** Of the churches and cities listed in A1, which ones are the most interesting to you, and why? What's a good reporting question you have about them?
+
+**A2. I think Baltimore surprised me because I feel like Baltimore is so diverse (I'm thinking specifically of the city and not the county when I get my data result), but at the same time since Maryland was traditionally a Catholic colony, it doesn't surprise me THAT much. I think a good reporting questiong question I have about them is "How has the influx of other religions and cultures in Baltimore changed how the Catholic church presence is there?" **
+
+**Q3** The campaign expense data contains payments to churches in Maryland. Write code that finds only those payments made to churches by party central committees (there are a couple of ways to do this, but one simple way). Then write code to find which party committee spent the most total dollars and how much did they spend? **A3.**
+
+```{r}
+church_payments |> filter(str_detect(`Committee Type`, "Party Central"))
+                          
+```
+```{r}
+church_payments <- md_church_expense |>
+  filter(
+    'Committee Type' == "Party Central",
+    str_detect('Payee Name', "Church")
+  ) |>
+  select('Committee Type', 'Payee Name', 'Transaction Amount')
+```
+
+```{r}
+church_totals <- church_payments |>
+  rename(transaction_amount = `Transaction Amount`) |>
+  group_by(`Committee Type`) |>
+  summarise(total_spent = sum(transaction_amount, na.rm = TRUE)) |>
+  arrange(desc(total_spent))
+```
+
+```{r}
+top_spender <- md_church_expense |>
+  filter(
+    str_detect(`Payee Name`, "Church"),
+    `Committee Type` == "Party Central"
+  ) |>
+  group_by(`Committee Name`) |>
+  summarise(total_spent = sum(`Transaction Amount`, na.rm = TRUE)) |>
+  arrange(desc(total_spent)) |>
+  filter(total_spent == max(total_spent))
+
+top_spender$`Committee Name`
+top_spender$total_spent
+```
+
+**Q4.** Using the same Maryland campaign expenses data, change the datatype of the `Transaction Date` column so that it is a date and not a chr, saving the result as the same dataframe. Then create a new column for the week based on `Transaction Date` using the `week()` function (representing the week of the year). Then write code that shows the total amount spent each week using that new column. Write a sentence describing the pattern of spending over time - when has there been more spending and when has there been less? **A4.**
+
+```{r}
+church_payments <- md_church_expense |> select(`Committee Type` == "Party Central", `Payee Name`)
+```
+```{r}
+
+```
+
+
+**Q5.** Using the `md_churches` data, create a column using `mutate()` and `case_when()` that tries to accomplish the same thing we did in the pre_lab - pulling the denomination or faith from church names. This will take longer than the pre_lab because there are more churches in the data, and you should use <https://www.thearda.com/us-religion/census/congregational-membership?y=2020&y2=0&t=1&c=24> as a reference for the most common denominations in Maryland. What you want is to populate your new column with something like the "Family" column on that web page, using "Other" for those you're not able to classify. After creating your new column, write code that shows the top five denominations or faiths by number of churches in Maryland. You won't get all of them, but try to get as many as you can. Do these totals seem accurate to you? Are there denominations or faith groups that are obviously missing? Which one(s)?
+
+**A5**
+
+```{r}
+md_churches |>
+  mutate(
+    denomination = case_when(
+      
+```

@@ -74,4 +74,9 @@ nrow(cp_churches_ind)
 ```{r}
 ##to write dates in code, start with year, then month, then day
 ```
+```{r}
+## if you clear out the entire environment (broom icn at top right) and then go to the 'run all' option, you can check to see that its correct from beginning to end
+
+##you can also check individual parts of code, highlight the part you want to see if correct and then go to "run selected"
+```
 
