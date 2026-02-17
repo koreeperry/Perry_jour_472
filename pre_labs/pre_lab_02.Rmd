@@ -99,7 +99,7 @@ So let's say we wanted to see all the churches in College Park that are independ
 
 ```{r}
 cp_churches_ind <- md_churches |> filter(CITY == "COLLEGE PARK") |> filter(AFFILIATION == 3)
-
+`
 nrow(cp_churches_ind)
 ```
 
