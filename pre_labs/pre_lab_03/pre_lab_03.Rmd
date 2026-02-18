@@ -41,7 +41,7 @@ payments <- read_csv("data/State_of_Maryland_Payments_Data__FY2008_to_FY2024_202
 
 ### Task 3: Reload data
 
-**Task** Run the following codeblock to reload the data, using every row to set the data types. Does it show any parsing errors when you run? Answer below **Answer**
+**Task** Run the following codeblock to reload the data, using every row to set the data types. Does it show any parsing errors when you run? Answer below **Yes, the zip ode gioven is not an actual part of the dataset.**
 
 ```{r}
 payments <- read_csv("data/State_of_Maryland_Payments_Data__FY2008_to_FY2024_20260122.csv.zip", guess_max=392488)
@@ -49,7 +49,7 @@ payments <- read_csv("data/State_of_Maryland_Payments_Data__FY2008_to_FY2024_202
 
 ### Task 4: Examine the data with glimpse
 
-**Task** Run the following codeblock to glimpse the data. What data type is the "Vendor Name" field? What data type is the "Amount" field? What data type is the "Date" column? Answer below. **Answer**
+**Task** Run the following codeblock to glimpse the data. What data type is the "Vendor Name" field? What data type is the "Amount" field? What data type is the "Date" column? Answer below. **There set in the wrong data type. There are things that shouldn't be characters.**
 
 ```{r}
 glimpse(payments)
@@ -63,7 +63,7 @@ The second smell we can find in code is **wrong spatial data**. Spatial data mea
 
 We can check to see if any of the zip codes are less than five characters by using [a function called `str_length`](https://stringr.tidyverse.org/reference/str_length.html) inside a filter.
 
-**Task** Run the following codeblock to group by the vendor's zip code and show any that are less than five characters in length. How many zip codes do not have five characters? What do you think explains those records? **Answer**
+**Task** Run the following codeblock to group by the vendor's zip code and show any that are less than five characters in length. How many zip codes do not have five characters? What do you think explains those records? **Answer is 56**
 
 ```{r}
 payments |>
@@ -77,7 +77,7 @@ payments |>
 
 What do state government payments have to do with churches? Let's find out:
 
-**Task** Run the following codeblock to filter the payments data to show only payments to vendors with "CHURCH" in their name. How many payments were made to churches? What was the total amount paid to churches? **Answer**
+**Task** Run the following codeblock to filter the payments data to show only payments to vendors with "CHURCH" in their name. How many payments were made to churches? What was the total amount paid to churches? **The largest payment is from contracting the United Methodist Church for child care -- 60055531.56. **
 
 ```{r}
 payments |>
@@ -119,7 +119,7 @@ Any time you are going to focus on a column for analysis, you should check for u
 
 ### Task 8: Find outliers
 
-**Task** Run the following code to arrange the grants & loan data so that the smallest amount is first. Describe what you see. **Answer**
+**Task** Run the following code to arrange the grants & loan data so that the smallest amount is first. Describe what you see. **A grant for only $60 sticks out as unusual.**
 
 ```{r}
 md_grants_loans |> 
@@ -155,7 +155,7 @@ Let's get cleaning. Our goal will be to build up one block of code that does all
 
 ### Task 3: Use clean_names()
 
-**Task** Run the following codeblock to use the `clean_names()` function from janitor to standardize column names. How does it change the headers? Answer below. **Answer**
+**Task** Run the following codeblock to use the `clean_names()` function from janitor to standardize column names. How does it change the headers? Answer below. **It lowercases all of the category names.**
 
 ```{r}
 # cleaning function
@@ -199,7 +199,7 @@ cleaned_md_grants_loans
 
 ### Task 6: Check for duplicate rows
 
-**Task** Run the following codeblock to check for duplicate rows using get_dupes(). How many duplicates are possible? **Answer**
+**Task** Run the following codeblock to check for duplicate rows using get_dupes(). How many duplicates are possible? **based on the number, I would say 58, but I'm not sure if that's compeltely correct. To be safe, there are at least TWo duplicates for each.**
 
 ```{r}
 cleaned_md_grants_loans |>
@@ -208,7 +208,7 @@ cleaned_md_grants_loans |>
 
 ### Task 7: Get rid of duplicate rows
 
-**Task** Run the following codeblock to use distinct() to get rid of duplicate rows. How many rows does the new dataframe have? Answer below. **Answer**
+**Task** Run the following codeblock to use distinct() to get rid of duplicate rows. How many rows does the new dataframe have? Answer below. **21,197 rows.**
 
 ```{r}
 # cleaning function
@@ -230,7 +230,7 @@ Let's start by cleaning up the zip field. Remember, some of the rows had a five-
 
 We're going to write code that tells R to make a new column for our zips, keeping the first five digits on the left, and get rid of anything after that by using `mutate()` in concert with `str_sub()`, from the `stringr` package.
 
-**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, creating a new column. Look at the difference in the result - what changed? **Answer**
+**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, creating a new column. Look at the difference in the result - what changed? **There is a new column that only has the zipcodes with five digits in it.**
 
 ```{r}
 # cleaning function
@@ -271,8 +271,29 @@ cleaned_md_grants_loans
 
 ### Task 10: Answer our question!
 
-**Task** Write and run code to answer our original question: which grantee with the word "CHURCH" in its name has gotten the most amount of grant/loan money from the state, and what is the zip code for it? Which of the top recipients is the most interesting to you? **Answer**
+**Task** Write and run code to answer our original question: which grantee with the word "CHURCH" in its name has gotten the most amount of grant/loan money from the state, and what is the zip code for it? Which of the top recipients is the most interesting to you? **When the code actually ran, it showed zero results. I believe I have it, in part, correct, but I am going to try and fix it.**
 
 ```{r}
+cleaned_md_grants_loans <- md_grants_loans |>
+  clean_names() |> 
+  rename(source = grantor) |> 
+  mutate(source = str_to_upper(source), grantee = str_to_upper(grantee), description = str_to_upper(description)) |> 
+  distinct() |>
+  mutate(zip5 = str_sub(zip_code, start=1L, end=5L)) |>
+  mutate(zip5 = case_when(
+    zip5 == "Vario" ~ NA,
+    zip5 == "UB7 O" ~ NA,
+    zip5 == "UB7 " ~ NA,
+    .default = zip5
+  ))
+
+cleaned_md_grants_loans |>
+  filter(str_detect(`grantee`, "CHURCH")) |>
+  group_by(`amount') |>
+  summarize(
+    count = n(),
+    total_amount = sum(amount)
+  ) |> 
+  arrange(desc(total_amount))
 
 ```
