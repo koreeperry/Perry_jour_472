@@ -1,0 +1,169 @@
+---
+title: "lab_03"
+author: "Derek Willis"
+date: "2026-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## TASK: Load libraries you'll need to load and clean the data
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+```
+
+## TASK: Load data and clean up the column names
+
+Load the two datasets we worked with in the pre_lab: the Maryland payments to vendors and Maryland grants and loans and, using `janitor`, change the columns so that they are lower-cased and any spaces are replaced with underscores. You also will want to make it so that you can find the most records possible when using filter(), which means making the records look as consistent as possible in terms of their formatting.
+
+```{r}
+# Load in the Maryland state agency payments data
+payments <- read_csv("data/State_of_Maryland_Payments_Data__FY2008_to_FY2024_20260122.csv.zip", guess_max = 10)
+
+# Load in the Maryland grants and loan data
+md_grants_loans <- read_csv("data/State_of_Maryland_Grant_and_Loan_Data__FY2009_to_FY2024_20260122.csv", guess_max = 10)
+
+```
+
+
+```{r}
+payments <- read_csv("data/State_of_Maryland_Payments_Data__FY2008_to_FY2024_20260122.csv.zip", guess_max = 392488)
+
+md_grants_loans <- read_csv("data/State_of_Maryland_Grant_and_Loan_Data__FY2009_to_FY2024_20260122.csv", guess_max = 21226)
+```
+
+```{r}
+##then to clean up the zip codes:
+payments |>
+  group_by(`Vendor Zip`) |>
+  filter(str_length(`Vendor Zip`) < 5) |> 
+  summarise(
+    count=n()
+  ) |>
+  arrange(desc(count))
+```
+
+```{r}
+##now to clean both datasets!! :)
+clean_payments <- payments |>
+  clean_names()
+
+clean_grant_loan <- md_grants_loans |>
+  clean_names()
+```
+
+```{r}
+##i thought i was done cleaning but i guess not :(
+clean_grant_loan <- md_grants_loans |>
+  clean_names() |> 
+  rename(source = grantor)
+
+##and more cleaning...
+clean_grant_loan <- md_grants_loans |>
+  clean_names() |> 
+  rename(source = grantor) |> 
+  mutate(source = str_to_upper(source), grantee = str_to_upper(grantee), description = str_to_upper(description))
+
+```
+
+```{r}
+clean_grant_loan |>
+  get_dupes()
+```
+```{r}
+clean_grant_loan <- md_grants_loans |>
+  clean_names() |> 
+  rename(source = grantor) |> 
+  mutate(source = str_to_upper(source), grantee = str_to_upper(grantee), description = str_to_upper(description)) |> 
+  distinct()
+```
+
+## Answer questions
+
+Q1: You want to know how much money state agencies have paid to religious organizations in a particular denomination, but to do that you'll need to find the variations of how that denomination's organizations might be listed. Pick a denomination or faith and write code to find rows where the vendor name contains the name you're searching for, starting with a simple word or phrase and then getting more complex if needed. NOTE: you need to pick one that has at least some payments!
+
+HINT: you should use filter() just once, and inside your filter you want to look for the variations one at a time. Think "this version OR that version."
+
+When you have found as many as possible, save the result to a new dataframe called \`rel_orgs\`\`. Write the denomination or faith, and how many records you found.
+
+A1: Baptist (denomination), records: 8 columns and 13 rows
+```{r}
+glimpse(clean_payments)
+```
+
+```{r}
+clean_payments |>
+  filter(str_detect(vendor_name, 'BAPTIST CHURCH')) |>
+  group_by(amount)
+```
+```{r}
+rel_orgs <- clean_payments |> filter(str_detect(vendor_name, 'BAPTIST CHURCH')) |> 
+                                       group_by(amount)
+```
+
+
+Q2: Using that `rel_orgs` dataframe, write code to calculate the total amount of payments to those religious organizations for each fiscal year. Which fiscal year had the largest total amount? Are there any aspects of the results that stand out to you?
+
+A2: The largest year was 2025. The only thing that really interested me was the big jump in money paid from 2024 to 2025.
+
+```{r}
+rel_orgs |>
+  group_by(fiscal_year) |>
+  summarise(total = sum(amount)) |>
+  arrange(desc(total == max(total)))
+```
+
+Q3. You're interested in examining state payments (not grants or loans) to Catholic Charities organizations. Use `filter()` and `str_detect()` to find those payments and save them to a new dataframe. Then look carefully at that list - what cleaning will it require to ensure that you can standardize the vendor names? Next, write a plan - not code for this step - describing how you would clean up the records so that the end result is that you'd have each unique vendor listed only once. You *can* write code for this, but what's required is a step-by-step process.
+
+A3. Plan: Luckily, I cleaned a lot of the code before starting this question, but I went back to the original dataset just to fully plan out. First, you'd need to use "clean_names" to standardize all the names of each column (which would automatically standardize the vendor names). Now, to clean the dataset so you'd have each unique vendor listed only once, you'd have to find out if there any duplicates in the data. To do this, you'd have to use "get_dupes()" to first locate duplicate rows, then use "distinct()" to get rid of them.
+
+```{r}
+payments |>
+  filter(str_detect(`Vendor Name`, 'CATHOLIC CHARITIE'))
+```
+
+Q4: You want to the leading recipients of state grant money given for the purpose of preventing hate crimes. Filter the data to find grants that fit that description; you'll want to make sure that you locate all of them. Then calculate the total amount of money for each grantee. Write a sentence or two describing the top 20 grantees and identify the most interesting one(s) to you. You can do some research about them to back up your answer.
+
+A4: I wasn't really sur ehow to do this problem past actually filrering out by "Hate Crime", but I was trying to group by the amounts paid and then calculate the totals for eahc, but I wasn't sure hot to do it per grantee.
+
+```{r}
+clean_grant_loan |>
+  filter(str_detect(description, 'HATE CRIME')) |>
+  group_by(amount) |>
+
+```
+
+Q5: Using the Maryland grants and loan data, write code to find grant recipients of the African American Heritage Preservation Program (AAHPP) and produce a list of grantees along with the total amount they received. Describe which of the top 20 recipients are churches or church-related (you may need to do some research to figure that out). Which of those grantees are most interesting to you?
+
+A5: The data arranged itself in ascending order, so I had to go backwards and work that way. Among the most interesting grantees to me were the Sefarer's Yacht Club, The West River Improvement Association (probably the least surprising, as it is a living community). 
+
+```{r}
+clean_grant_loan |>
+  filter(str_detect(description, 'AAHPP')) |>
+  group_by(amount) |>
+  summarise(grantee)
+```
+
+Q6: Using the denomination that you are collecting church information on, write code to find any payments to those organizations that are listed in the grants and loan data. How many records do you find? What's the most interesting payment you find in the data and why?
+
+A6: The actual descriptions for the payment under 'ISLAM' weren't anything out of the ordinary, but for 'MUSLIM', one of the payments was for security coverage, 
+
+```{r}
+clean_grant_loan |>
+  filter(str_detect(grantee, 'ISLAM')) |>
+  group_by(amount)
+```
+```{r}
+clean_grant_loan |>
+  filter(str_detect(grantee, 'MUSLIM')) |>
+  group_by(amount)
+```
+
