@@ -1,0 +1,88 @@
+---
+title: "lab_04"
+author: "Derek Willis"
+date: "2026-01-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About this lab
+
+To complete this lab, you need to: \* run existing code as directed (look for **Task**). \* modify existing code as directed (look for **Task**). \* write code in empty codeblocks provided to answer questions included (look for **Q**). \* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+
+## Load libraries and establish settings
+
+You'll need to load two packages for this: the tidyverse and janitor.
+
+**Task** load these two packages.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+library(tidyverse)
+library(janitor)
+```
+
+For this lab, we want to investigate payments by Maryland state agencies to church-related organizations. For example, we could ask which churches or religious organizations have received the most money from the state? Which state agencies make the most payments to religious organizations? We have the data, but it's messy - names of vendors are spelled differently and capitalized differently - and we need to clean it up. We'll use a combination of RStudio and OpenRefine to do that.
+
+The basic process here is to start in RStudio, export data so that we can use OpenRefine to clean it up, and then bring it back into RStudio to finish our analysis.
+
+## Load Data
+
+You'll need to load one data set, a CSV file of Maryland payments to church-related organizations located in the data folder called "church_payments.csv"
+
+**Task** Create a codeblock below, then read the data in and assign it to an appropriate variable name. You'll want to clean up the column names.
+
+```{r}
+md_church_payments <- read.csv("data/church_payments.csv")
+```
+
+## Answer questions
+
+**Q1.** You've been assigned to investigate payments by Maryland state agencies to various religious organizations. There's a vendor_name column in the data, but it has variations in how many of them are listed. You'll need to complete the following steps:
+
+1. Write code to see the leading recipients to get a sense of which organizations you'll want to focus your cleaning efforts on. Keep that handy.
+2. Using OpenRefine, create a project using the original CSV file, create a copy of the `vendor_name` column called `vendor_clean` and then standardize it, focusing on the vendors that appear most often. Pay particular attention to variations of the top recipients, but also clean up other common vendors you notice.
+3. When you are done standardizing `vendor_clean`, export it as a new CSV file to your data folder, *giving it a different name* and read it back into RStudio as a new dataframe.
+4. Using that `vendor_clean` column in your new dataframe, calculate the total amount of payments to the leading recipients. Compare it to the totals you generated in step 2 and describe the differences.
+
+**A1.**
+
+```{r}
+md_church_payments |>
+  filter(str_detect(vendor_name, 'BAPTIST')) |>
+  group_by(vendor_name) |>
+  summarise(total_amount = sum(amount)) |>
+
+  arrange(desc(total_amount))
+```
+
+**Q2.** Let's examine the top recipients of state payments. Using your cleaned dataframe from Q1, for the top 10 organizations, look up what kind of services they provide. Are they churches that run social service programs? Religious-affiliated nonprofits? Care facilities? Write some sentences describing what you found about the top recipients.
+
+**A2.**
+
+
+
+**Q3.** Which state agencies have made the most payments to religious organizations? Calculate the total amount paid by each agency (using `agency_name`) and show the top 10 agencies. What do you notice about the agencies making these payments? Why might these particular agencies be paying religious organizations? What could you do to improve the accuracy of the results?
+
+**A3.** 
+
+```{r}
+```
+
+**Q4.** Let's look at the data over time. Using your cleaned dataframe, calculate the total amount paid to religious organizations by fiscal year. Which years saw the highest total payments? Create a sentence or two describing the trend you observe. Then, pick one of the top-spending agencies from Q3 and calculate its yearly payments to religious organizations. How does this agency's spending pattern compare to the overall trend?
+
+**A4.**
+
+```{r}
+```
+
+**Q5** Your editor asks you to summarize your findings about Maryland state payments to religious organizations. Based on your analysis, what patterns have you found? What questions does this data raise that you'd want to investigate further through reporting? What's the best story idea you've found here?
+
+**A5**
