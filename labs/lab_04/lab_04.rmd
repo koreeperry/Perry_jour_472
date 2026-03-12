@@ -85,4 +85,4 @@ md_church_payments |>
 
 **Q5** Your editor asks you to summarize your findings about Maryland state payments to religious organizations. Based on your analysis, what patterns have you found? What questions does this data raise that you'd want to investigate further through reporting? What's the best story idea you've found here?
 
-**A5**
+**A5: Some questions I have would include...are these payments being fully used for what they are described to be used for (whatever the description states, according to the code or whatever "Vendor Payment" means).**
