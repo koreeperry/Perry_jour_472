@@ -228,7 +228,7 @@ When you join a table with unique records to a table with multiple records per k
 
 ```{r}
 # Example: look at the first person
-sample_person <- umdata_people |> slice(1)
+sample_person <- umdata_people |> slice(777)
 sample_gcfaid <- sample_person$GCFAId
 
 people_with_conferences |>
