@@ -15,6 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # Turn off scientific notation
 options(scipen=999)
 
+library(tidyverse)
+library(lubridate)
 # load your libraries
 ```
 
@@ -29,7 +31,15 @@ First, let's load all the data we'll need for this lab.
 ```{r}
 # Load the five clergy contribution files for different election cycles
 
+clergy_contribs_2016 <- read_csv("data/clergy_contribs_2016.csv")
+clergy_contribs_2018 <- read_csv("data/clergy_contribs_2018.csv")
+clergy_contribs_2020 <- read_csv("data/clergy_contribs_2020.csv")
+clergy_contribs_2022 <- read_csv("data/clergy_contribs_2022.csv")
+clergy_contribs_2024 <- read_csv("data/clergy_contribs_2024.csv")
+
 # Load the two United Methodist data files
+umdata_people <- read_csv('data/umdata_people.csv')
+umdata_people_all <- read_csv('data/umdata_people_all.csv')
 ```
 
 ## Answer questions
@@ -37,8 +47,17 @@ First, let's load all the data we'll need for this lab.
 Q1. Now you're interested in understanding giving patterns by election cycle. Combine the five clergy contribution files into a single dataframe, then calculate the total dollar amount contributed in each election cycle, and the total number of contributions in each cycle. Which cycle had the most money contributed? Which had the most individual contributions? What's the difference between those two results, and what might explain it?
 
 A1. 
-
+##groupby and summarise
 ```{r}
+big_clergy_data <- bind_rows(clergy_contribs_2016, clergy_contribs_2018, clergy_contribs_2020, clergy_contribs_2022, clergy_contribs_2024)
+```
+```{r}
+big_clergy_data |>
+  group_by(two_year_transaction_period) |> 
+  summarise(
+    total_amount = sum(contribution_receipt_amount),
+    total_contributions = n()
+  )
 ```
 
 Q2. Some clergy members have been more consistent donors across election cycles. Using the combined contribution data, create a dataframe that shows each contributor and how many different election cycles they contributed in (someone who gave in 2016, 2018, and 2024 would have 3 cycles). You can use group_by and summarize to do this. Who contributed in all five election cycles? How many people contributed in only one cycle vs. multiple cycles?
@@ -46,6 +65,8 @@ Q2. Some clergy members have been more consistent donors across election cycles.
 A2. 
 
 ```{r}
+
+
 ```
 
 Q3. You're interested in whether there are geographic patterns in clergy giving. Using the combined contribution data, calculate the total amount contributed by clergy in each city (`contributor_city`). What are the top 5 cities by total contribution amount? Then calculate the number of unique contributors in each of those top 5 cities. Are the cities with the most money also the cities with the most contributors, or are there differences?

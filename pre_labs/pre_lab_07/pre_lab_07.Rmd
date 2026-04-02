@@ -20,6 +20,7 @@ library(tidyverse)
 library(janitor)
 # if needed, install tidycensus, then load it.
 # install.packages("tidycensus")
+
 library(tidycensus)
 ```
 
@@ -33,7 +34,7 @@ To use the API, you need to [an API key from the Census Bureau](https://api.cens
 
 **Task** In the R Console below (not in this notebook), run the following command, replacing YOUR KEY HERE with your Census API Key:
 
-`census_api_key("YOUR KEY HERE", install=TRUE)`
+`census_api_key("f23e9b7c60f3c356678f297c9117fff98d3da6b0", install=TRUE)`
 
 This will save your key to your .Renviron file so it's available for future sessions. You only need to do this once. After running it, restart R (Session -\> Restart R) so the key takes effect.
 
@@ -100,7 +101,7 @@ alldata <- p00 |> inner_join(p10)
 
 And now we calculate the percent change.
 
-**Task** Run the following codeblock to calculate the percentage change and put the state with the largest percentage growth below. **Answer**
+**Task** Run the following codeblock to calculate the percentage change and put the state with the largest percentage growth below. **Answer: Nevada**
 
 ```{r}
 alldata |> mutate(change = ((Population2010-Population2000)/Population2000)*100) |> arrange(desc(change))
@@ -123,7 +124,7 @@ We can measure this by median household income. That variable is `B19013_001`, s
 
 ### Task 5: Answer Questions with ACS Data
 
-**Task** Run the following codeblock to find the Maryland county with the highest median household income and put the answer below. **Answer**
+**Task** Run the following codeblock to find the Maryland county with the highest median household income and put the answer below. **Answer: Howard County, MD**
 
 ```{r}
 md <- get_acs(geography = "county",
@@ -140,7 +141,7 @@ What do the top counties all have in common? Lots of suburban flight from D.C an
 
 ### Task 6: Margins of Error
 
-**Task** Run the following codeblock to create a chart showing the margin of error for each county. The current headline isn't very descriptive of the data. What should it be? **Answer**
+**Task** Run the following codeblock to create a chart showing the margin of error for each county. The current headline isn't very descriptive of the data. What should it be? **Answer: I'm not sure about a specific headline, but it should definitely include the overlap of some counties and the actual margin of error.**
 
 ```{r}
 md |>
@@ -156,9 +157,9 @@ md |>
 
 As you can see, some of the error bars are quite wide. Some are narrow. But if the bars overlap, it means the difference between the two counties is within the margin of error, and the differences aren't statistically significant.
 
-Is the difference between Calvert and Montgomery significant? **Answer**
+Is the difference between Calvert and Montgomery significant? **Answer: There is a good amount of overlap, but Calvert county has a bigger margin by a LOT.**
 
-Is the difference between Howard and everyone else significant? **Answer**
+Is the difference between Howard and everyone else significant? **Answer: Howard county remains in the top spot - there is a significant gap between the household income of Howard county and every other county.**
 
 ### Task 7: Joining Multiple Years Together
 
@@ -182,7 +183,7 @@ md10 <- get_acs(geography = "county",
 
 What we're going to do next is a lot, but each step is simple. We're going to join the data together, so each county has one line of data. Then we're going to rename some fields that repeat. Then we're going to calculate the minimum and maximum value of the estimate using the margin of error. That'll help us later. After that, we're going to calculate a percent change and sort it by that change.
 
-**Task** Run the following codeblock to join the data, rename the population estimates and then calculate the values we need. Notice how we select *after* we do the initial calculations so we only see the columns we're interested in (and drop the ones we don't want to see). Also note how the select function has the minus sign (-) in front of some columns? That means we don't want to see them in our result. Which jurisdictions saw the largest increases in median income? What's the most interesting county here? **Answer**
+**Task** Run the following codeblock to join the data, rename the population estimates and then calculate the values we need. Notice how we select *after* we do the initial calculations so we only see the columns we're interested in (and drop the ones we don't want to see). Also note how the select function has the minus sign (-) in front of some columns? That means we don't want to see them in our result. Which jurisdictions saw the largest increases in median income? What's the most interesting county here? **Answer: Kent, Allegany, Baltimore City, Somerset and Wicomic were the top five with the biggest change.**
 
 ```{r}
 md10 |>
@@ -204,7 +205,7 @@ The key to joining these datasets is the FIPS code - a standardized geographic i
 
 ### Task 8: Load U.S. Religion Census Data
 
-**Task** Run the following codeblock to load the state and county religion census data. Examine the structure - what columns do you see? **Answer**
+**Task** Run the following codeblock to load the state and county religion census data. Examine the structure - what columns do you see? **Answer: State code and name, the 2020 population as well as the population rank, largest body by number of congregations (does this mean ) **
 
 ```{r}
 religion_state <- read_csv("data/usreligioncensus_state_2020.csv") |> clean_names()
@@ -222,7 +223,7 @@ Notice that the state data has a `state_code` column (FIPS code) and the county 
 
 Let's get state-level population data from the 2020 Census and join it with the religion census data to explore which states have the highest percentage of religious adherents.
 
-**Task** Run the following code to get 2020 state populations and join them with religion data. Notice that we need to make sure the FIPS codes match in format (both as character types). Which state has the highest percentage of adherents? Which has the lowest? **Answer**
+**Task** Run the following code to get 2020 state populations and join them with religion data. Notice that we need to make sure the FIPS codes match in format (both as character types). Which state has the highest percentage of adherents? Which has the lowest? **Answer: Highets is Utah and lowest is New Hampshire**
 
 ```{r}
 # Get 2020 state population from Census
@@ -255,7 +256,7 @@ Now let's work with county-level data to explore Maryland specifically. We'll jo
 
 You'll notice the religion census data includes a `congregations_per_100_000_population` column. That rate makes sense for large states, but for Maryland counties -- many of which have well under 100,000 people -- it's not very intuitive. Garrett County, for example, has about 29,000 people and 96 congregations, which works out to 333 per 100,000. But Garrett County's population is very far from 100,000 people, so that number is hard to grasp. A per-1,000 rate is more useful here: Garrett County has about 3.3 congregations per 1,000 residents, or roughly 1 for every 300 people.
 
-**Task** Run the following code to get Maryland county data from both sources and join them. We'll calculate a per-1,000 congregations rate that's easier to interpret. Do the wealthiest counties tend to have higher or lower rates of religious adherence? **Answer**
+**Task** Run the following code to get Maryland county data from both sources and join them. We'll calculate a per-1,000 congregations rate that's easier to interpret. Do the wealthiest counties tend to have higher or lower rates of religious adherence? **Answer: I see a higher percentage among the wealthier counties, but Montgomery, PG, Worcester and Baltimore City have a higher percentage than Howard County.**
 
 ```{r}
 # Get Maryland county median income

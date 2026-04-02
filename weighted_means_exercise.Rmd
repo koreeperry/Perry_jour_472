@@ -218,7 +218,17 @@ Now it's your turn. Use what you've learned to answer these questions.
 **A1.**
 
 ```{r}
-
+cces |>
+  filter(!is.na(trad)) |>
+  group_by(trad) |>
+  mutate(birthyr >= 1994 & birthyr <= 2024) |>
+  summarise(
+    n = n(),
+    unweighted_mean_age = round(mean(age, na.rm = TRUE), 1),
+    weighted_mean_age = round(weighted.mean(age, weight, na.rm = TRUE), 1),
+    .groups = "drop"
+  ) |>
+  arrange(desc(weighted_mean_age))
 ```
 
 **Q2.** Calculate both the weighted mean age AND the weighted percentage of members over 75 for each denomination. Arrange by the over-75 percentage. Which denominations face the most urgent demographic challenges?
@@ -226,6 +236,17 @@ Now it's your turn. Use what you've learned to answer these questions.
 **A2.**
 
 ```{r}
+cces |>
+  filter(!is.na(trad)) |>
+  group_by(trad) |>
+  mutate(birthyr >= 1994 & birthyr <= 2024) |>
+  summarise(
+    n = n(),
+    unweighted_mean_age = round(mean(age, na.rm = TRUE), 1),
+    weighted_mean_age = round(weighted.mean(age, weight, na.rm = TRUE), 1),
+    .groups = "drop"
+  ) |>
+  arrange(desc(weighted_mean_age))
 
 ```
 
