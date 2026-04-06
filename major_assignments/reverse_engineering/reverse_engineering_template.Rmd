@@ -1,7 +1,7 @@
 ---
 title: "Reverse Engineering Project"
 author: "Koree Perry"
-date: "Date here"
+date: "3/26/26"
 output:
   html_document:
     theme: cerulean
@@ -18,14 +18,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction 
 
-In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
+In this notebook, we are reverse engineering the story, [When Are Half Your Members Going To Be Dead?](https://thescoop.org/religion/reverse-engineering/going-dead.html)
 
 ## Load libraries
 
 Loading required libraries for this analysis.
 
 ```{r echo=FALSE, message=FALSE}
-
+library(tidyverse)
+library(janitor)
 ```
 
 ## Load and Cleaning Data
@@ -33,6 +34,8 @@ Loading required libraries for this analysis.
 In this section, describe the source of the data, write a basic data dictionary for data you are working with, and discuss any caveats or issues you discovered working with this data. 
 
 ```{r}
+##Source of data: Ryan Burge - Data Cooperative Election Study
+
 # Load required data
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
@@ -47,7 +50,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 1
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: [For instance, just 6% of Southern Baptist adults are under the age of 30. That’s no different at all than the Episcopalians. Only about one in five are under the age of 45]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -59,7 +62,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 2
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: [For instance, just 6% of Southern Baptist adults are under the age of 30. That’s no different at all than the Episcopalians. Only about one in five are under the age of 45]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -71,7 +74,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 3
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: [This should come as a shock to no one who is vaguely aware of American religion — Episcopalians are old. In fact, two-thirds of their adult members have celebrated their 60th birthday. In contrast, just 6% are under the age of thirty.]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -83,7 +86,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 4
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: [The means are denoted in red, and you can see that most of the numbers are at least 55 years old. For instance, the average adult member of an Episcopal church is 61 years old. For Southern Baptists, it’s 58. The Assemblies of God are doing a bit better on this metric at 54]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -95,7 +98,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 5
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: []
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}

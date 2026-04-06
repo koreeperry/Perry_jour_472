@@ -18,6 +18,9 @@ knitr::opts_chunk$set(echo = TRUE)
 options(scipen=999)
 
 # load libraries
+library(tidyverse)
+library(janitor)
+library(lubridate)
 ```
 
 ## Load and modify data
@@ -31,6 +34,11 @@ options(scipen=999)
 You will need to use `clean_names()` on the data and you will need to create columns for the date, week and month based on the existing `contribution_receipt_date` column in the clergy contributions data. For the county religion census data, you will need to use `parse_number()` on at least the `adherents_as_percent_of_population` column.
 
 ```{r}
+megachurches <- read_csv("data/megachurches.csv") |> clean_names()
+clergycontribs2024 <- read_csv("data/clergy_contribs_2024.csv") |> clean_names()
+usreligioncounty <- read_csv("data/usreligioncensus_county_2020.csv") |> clean_names()
+
+
 ```
 
 ## Questions
@@ -46,6 +54,7 @@ Compare the results here to those from the pre_lab_08 bar chart of states by con
 **A1.**
 
 ```{r}
+
 ```
 
 **Q2.** Let's visualize clergy political contributions over time using a line chart. Generate a dataframe with the total amount of contributions for each month, and then create a line chart to show the distribution of contributions over time. Your line chart must have:
@@ -59,7 +68,19 @@ Describe the pattern of results; are there particular months that stand out? Wha
 **A2.**
 
 ```{r}
+clergy_politics_line <- clergycontribs2024 |> 
+  mutate(month=month(contribution_receipt_date)) |>
+  group_by(month) |>
+  summarise(total_amount = sum(contribution_receipt_amount))
 ```
+
+```{r}
+ clergy_politics_line  |>
+  ggplot() +
+  geom_line(aes(x=month, y=total_amount)) 
+```
+```
+
 
 **Q3.** A scatterplot is a type of chart that helps us see relationships between two variables. One variable goes on the x axis, the other on the y axis. For each row/observation in our data, a scatterplot puts a circle (or a "point") where the two variables intersect on a grid.
 

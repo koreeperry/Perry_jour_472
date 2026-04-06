@@ -81,6 +81,6 @@ nrow(cp_churches_ind)
 
 ##most amount is sum##
 
-ggplot is best way to make plots in r
+##ggplot is best way to make plots in r
 ```
 
