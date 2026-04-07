@@ -91,11 +91,13 @@ episco |>
 ## https://dplyr.tidyverse.org/reference/between.html
 # Put code to reverse engineer sentence here
 
-boom <- reverse_dead_data |> 
-  group_by(trad, birthyr) |>
+boom <- reverse_dead_data |>
+  group_by(trad) |>
   summarise(
-  count = n() = sum()
-)
+    count = n(),
+    total_boom = sum(between(birthyr, 1946, 1964))
+  ) |>
+  
 ##Display results of code below this codeblock
 
 ```
