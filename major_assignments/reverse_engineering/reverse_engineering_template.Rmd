@@ -65,17 +65,17 @@ southbap <- reverse_dead_data |>
  
 
 southbap |>
-  summarise(under30_percent = mean(under30) * 100) |> round()
+  summarise(under30_pct = mean(under30) * 100) |> round()
 ```
 
 ```{r}
 episco <- reverse_dead_data |>
-  filter(str_detect(trad, "Episcopal")) |>
+  filter(trad, "Episcopal") |>
   mutate(under45 = age < 45) |>
   arrange(desc(episco)) 
 
-episco |>
-  summarise(under45_percent = mean(under45) * 100) |> round()
+episco |> 
+  summarise(under45_pct = mean(under45) * 100) |> round()
 ```
 
 
@@ -90,13 +90,14 @@ episco |>
 ## 1946-1964 is baby boomer 
 ## https://dplyr.tidyverse.org/reference/between.html
 # Put code to reverse engineer sentence here
+##count is how many total, and total_boom is how many boomers are in each count for each trad
 
 boom <- reverse_dead_data |>
   group_by(trad) |>
   summarise(
     count = n(),
     total_boom = sum(between(birthyr, 1946, 1964))
-  ) |>
+  )
   
 ##Display results of code below this codeblock
 
@@ -108,10 +109,14 @@ boom <- reverse_dead_data |>
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
+##accidentally pressed the knit button and i don't know if that messed anything up
 # Put code to reverse engineer sentence here
-reverse_dead_data |>
-  
-
+episco_old_bday <- reverse_dead_data |>
+  filter(str_detect(trad, "Episcopal")) |>
+  group_by(age) |>
+  summarise(
+    pct_at_60 = reverse_dead_data$age(age > 60)
+)
 # Display results of code below this codeblock
 
 ```
