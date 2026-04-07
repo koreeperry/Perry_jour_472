@@ -27,6 +27,7 @@ Loading required libraries for this analysis.
 ```{r echo=FALSE, message=FALSE}
 library(tidyverse)
 library(janitor)
+library(lubridate)
 ```
 
 ## Load and Cleaning Data
@@ -40,6 +41,8 @@ In this section, describe the source of the data, write a basic data dictionary 
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
+reverse_dead_data <- read_csv("data/cces24_going_dead.csv") |> clean_names()
+
 # Clean required data and prepare for analysis if needed. 
 
 
@@ -51,24 +54,49 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 1
 
 * **Sentence text**: [For instance, just 6% of Southern Baptist adults are under the age of 30. That’s no different at all than the Episcopalians. Only about one in five are under the age of 45]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not? -- It took some trial and error to get the results of my analysis. My original answer was 6.7 something, but I decided to round just to make it one number, and it moved it up one percent than the article said. I'm not actually able to confirm because they are two different numbers, but I think I got close to how the data came to be in the article for Southern Baptists. For EPISCOPALIANS: ]
 
 ```{r}
 # Put code to reverse engineer sentence here
+southbap <- reverse_dead_data |>
+  filter(trad == "Southern Baptist") |>
+  mutate(under30 = age < 30) |>
+  arrange(desc(southbap))
+ 
+
+southbap |>
+  summarise(under30_percent = mean(under30) * 100) |> round()
+```
+
+```{r}
+episco <- reverse_dead_data |>
+  filter(str_detect(trad, "Episcopal")) |>
+  mutate(under45 = age < 45) |>
+  arrange(desc(episco)) 
+
+episco |>
+  summarise(under45_percent = mean(under45) * 100) |> round()
+```
+
 
 # Display results of code below this codeblock
-
-```
 
 ### Sentence 2
 
-* **Sentence text**: [For instance, just 6% of Southern Baptist adults are under the age of 30. That’s no different at all than the Episcopalians. Only about one in five are under the age of 45]
+* **Sentence text**: [And for 16 of the 20 denominations on this list, Boomers make up at least 40% of their adult membership.]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
+## 1946-1964 is baby boomer 
+## https://dplyr.tidyverse.org/reference/between.html
 # Put code to reverse engineer sentence here
 
-# Display results of code below this codeblock
+boom <- reverse_dead_data |> 
+  group_by(trad, birthyr) |>
+  summarise(
+  count = n() = sum()
+)
+##Display results of code below this codeblock
 
 ```
 
@@ -79,6 +107,8 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ```{r}
 # Put code to reverse engineer sentence here
+reverse_dead_data |>
+  
 
 # Display results of code below this codeblock
 
@@ -86,7 +116,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 4
 
-* **Sentence text**: [The means are denoted in red, and you can see that most of the numbers are at least 55 years old. For instance, the average adult member of an Episcopal church is 61 years old. For Southern Baptists, it’s 58. The Assemblies of God are doing a bit better on this metric at 54]
+* **Sentence text**: [ For instance, the average adult member of an Episcopal church is 61 years old. For Southern Baptists, it’s 58. The Assemblies of God are doing a bit better on this metric at 54]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -98,7 +128,7 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 5
 
-* **Sentence text**: []
+* **Sentence text**: [And for 16 of the 20 denominations on this list, Boomers make up at least 40% of their adult membership.]
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
