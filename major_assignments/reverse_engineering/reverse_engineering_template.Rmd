@@ -41,7 +41,7 @@ In this section, describe the source of the data, write a basic data dictionary 
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
-reverse_dead_data <- read_csv("data/cces24_going_dead.csv") |> clean_names()
+reverse_dead_data <- read_csv("data/cces24_going_dead.csv") |> clean_names() |> rename(denom = trad)
 
 # Clean required data and prepare for analysis if needed. 
 
@@ -54,28 +54,28 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 1
 
 * **Sentence text**: [For instance, just 6% of Southern Baptist adults are under the age of 30. That’s no different at all than the Episcopalians. Only about one in five are under the age of 45]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not? -- It took some trial and error to get the results of my analysis. My original answer was 6.7 something, but I decided to round just to make it one number, and it moved it up one percent than the article said. I'm not actually able to confirm because they are two different numbers, but I think I got close to how the data came to be in the article for Southern Baptists. For EPISCOPALIANS: ]
+* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not? -- It took some trial and error to get the results of my analysis, but I think I got close to how the data came to be in the article for Southern Baptists with 6.74. For EPISCOPALIANS: I don't understand what went wrong when its the exact same code. ]
 
 ```{r}
 # Put code to reverse engineer sentence here
 southbap <- reverse_dead_data |>
-  filter(trad == "Southern Baptist") |>
+  filter(denom == "Southern Baptist") |>
   mutate(under30 = age < 30) |>
   arrange(desc(southbap))
  
 
 southbap |>
-  summarise(under30_pct = mean(under30) * 100) |> round()
+  summarise(under30_pct = mean(under30) * 100)
 ```
 
 ```{r}
 episco <- reverse_dead_data |>
-  filter(trad, "Episcopal") |>
+  filter(denom == "Episcopal") |>
   mutate(under45 = age < 45) |>
-  arrange(desc(episco)) 
+  arrange(desc(episco))
 
 episco |> 
-  summarise(under45_pct = mean(under45) * 100) |> round()
+  summarise(under45_pct = mean(under45) * 100)
 ```
 
 
@@ -84,7 +84,7 @@ episco |>
 ### Sentence 2
 
 * **Sentence text**: [And for 16 of the 20 denominations on this list, Boomers make up at least 40% of their adult membership.]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not? - I was able to figure out how to do it, but the final issue came when I realized I had done the code for the entire list of denominations and not the selected twenty in the article. when I tried to put them in and change/rerun, it wouldn't work, and when I took them out, it wouldn't work again.]
 
 ```{r}
 ## 1946-1964 is baby boomer 
@@ -93,12 +93,17 @@ episco |>
 ##count is how many total, and total_boom is how many boomers are in each count for each trad
 
 boom <- reverse_dead_data |>
-  group_by(trad) |>
+  group_by(denom) |>
   summarise(
     count = n(),
-    total_boom = sum(between(birthyr, 1946, 1964))
-  )
-  
+    total_boom = sum(between(birthyr, 1946, 1964), na.rm = TRUE) 
+  ) |>
+  mutate(
+    final_40_pct = (total_boom / count) * 100)
+
+toppercent <- boom |>
+  filter(final_40_pct > 40) |>
+nrow()
 ##Display results of code below this codeblock
 
 ```
@@ -112,10 +117,10 @@ boom <- reverse_dead_data |>
 ##accidentally pressed the knit button and i don't know if that messed anything up
 # Put code to reverse engineer sentence here
 episco_old_bday <- reverse_dead_data |>
-  filter(str_detect(trad, "Episcopal")) |>
+  filter(denom == "Episcopal") |>
   group_by(age) |>
   summarise(
-    pct_at_60 = reverse_dead_data$age(age > 60)
+    pct_at_60 = mutate(reverse_dead_data(age > 60))
 )
 # Display results of code below this codeblock
 
@@ -128,6 +133,11 @@ episco_old_bday <- reverse_dead_data |>
 
 ```{r}
 # Put code to reverse engineer sentence here
+reverse_dead_data |>
+  group_by(denom)
+  summarise(
+    count = n()
+  )
 
 # Display results of code below this codeblock
 
