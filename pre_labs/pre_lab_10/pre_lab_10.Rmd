@@ -56,7 +56,7 @@ Similar to `readr`, the `sf` library has functions to read geographic data. In t
 
 ### Task: Load data
 
-**Task** Run the following code to load data. Describe what you see in the answer space below. What columns exist in this data? **Answer**
+**Task** Run the following code to load data. Describe what you see in the answer space below. What columns exist in this data? **Answer - It has the zipcodes and the names of where the zipcode is for Maryland, along with "object ID", the length and area and the longitutde and latitiude (or at least I belueve that's what the geometry section is with the multipolygon portion). **
 
 ```{r}
 md_zips <- st_read("data/md_zips/BNDY_ZIPCodes11Digit_MDP.shp")
@@ -70,7 +70,7 @@ Let's look at these zip codes We have 526 of them, according to this data.
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below: what kind of information does it contain? **Answer**
+**Task** Run the following code. Describe the output in the space below: what kind of information does it contain? **Answer - it has zip codes, zip code names (which county they belong to), longitutde and lattitude in the geometry section, etc**
 
 ```{r}
 View(md_zips)
@@ -80,7 +80,7 @@ But where in Maryland are these places? We can simply plot them on a longitude-l
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it is a map of Maryland and each zip code in the state**
 
 ```{r}
 md_zips |>
@@ -114,7 +114,7 @@ Now, let's use the counties() function from tigris to pull down a shapefile of a
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - It shoes specifics like the different state and county fips, longitutde and latitutde, and a bunch of other things that I don't really know. I'm not sure about the columns like LSAD or CBSAFP, I'm not sure what those all stand for.**
 
 ```{r}
 
@@ -129,7 +129,7 @@ This county shapefile has all 3233 U.S. counties. We only want the Maryland coun
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - This filters to a specific state**
 
 ```{r}
 md_counties <- counties |>
@@ -141,7 +141,7 @@ To see what this looks like, let's plot it out with ggplot. We can pretty clearl
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - It shows the actual counties in Maryland, but without their zipcodes. Just where each county is. But it doesn't show where the Chesapeake is at all.**
 
 ```{r}
 md_counties |>
@@ -158,13 +158,15 @@ We're also going to change things up a bit to put the datasets we want to displa
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - This code layers the counties ON TOP OF the states, which shows where the Bay cuts through them. To correctly view this, however, the code for the county goes first -- I think of it as laying a foundation before building on it, because if you put the zip codes first then the counties sill cover them.**
 
 ```{r}
 ggplot() +
   geom_sf(data=md_counties) +
   geom_sf(data=md_zips) +
   theme_minimal()
+
+## you layer from the ground up!! so the counties will be put first then the zipcodes
 ```
 
 Notice the subtle differences at the boundaries?
@@ -175,7 +177,7 @@ This is where the power of geographic data comes in. We already have a zip code 
 
 ### Task: Load the Maryland churches data
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - This is the church data we've been using, so it has the differetn churches and where theyy are (city, state, zip, etc), as well as the other information.**
 
 ```{r}
 md_churches <- read_csv("data/churches_md.csv")
@@ -189,7 +191,7 @@ This is a dataframe of churches registered as tax-exempt organizations in Maryla
 
 First, we need to filter our county data down to just Prince George's County. Then we'll use `st_join()` to find which zip codes from our shapefile intersect with the county boundary. We need to make sure both layers use the same coordinate reference system (CRS), so we'll transform the county data to match the zip code data's CRS.
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - This is like the previous task (the one after loading the data), except it filters it to just Maryland. It shows where the zipcodes cross with each county's bounds.**
 
 ```{r}
 pg_county <- md_counties |>
@@ -208,7 +210,7 @@ The `st_join()` function checks which zip code polygons intersect (overlap with)
 
 Now we can use those PG County zip codes to filter our churches data. We'll match the `zip5` column in the churches data to the `ZIPCODE1` column in our spatial join results.
 
-**Task** Run the following code. Describe the output in the space below. How many churches are in Prince George's County? **Answer**
+**Task** Run the following code. Describe the output in the space below. How many churches are in Prince George's County? **Answer - There are 2120 churches in Prince George's county**
 
 ```{r}
 pg_churches <- md_churches |>
@@ -222,7 +224,7 @@ nrow(pg_churches)
 
 Now let's count how many churches are in each PG County zip code and join that count back to the zip code shapefile. This will let us make a choropleth map -- where the color of each zip code represents the number of churches in it.
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it tells us each zip code and the number of churches within them**
 
 ```{r}
 pg_church_counts <- pg_churches |>
@@ -239,7 +241,7 @@ pg_churches_sf
 
 Now let's plot the zip code choropleth on top of the Prince George's County boundary. The `fill` aesthetic will color each zip code by its church count.
 
-**Task** Run the following code. Describe the output in the space below. What spatial patterns do you notice? Which zip codes have the most churches? **Answer**
+**Task** Run the following code. Describe the output in the space below. What spatial patterns do you notice? Which zip codes have the most churches? **Answer - The zip code with the most churches are near D.C. On the outer sections has the least amount of religious diversity (near Anne Arundel County) **
 
 ```{r}
 ggplot() +
@@ -278,7 +280,7 @@ First, we'll load the county-level religion data from the U.S. Religion Census 2
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it shows FIPS codes, county names, number of adherents and the adherents as a percept of the population, and the largest congregation by number of how many adherents it has**
 
 ```{r}
 md_county_religion <- read_csv("data/md_religion_choropleth.csv")
@@ -313,7 +315,7 @@ But there's a problem. The column in our population data that has county names i
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it shows the number of congregations in each county, adherents and the percent of adherents as population, and the largest congregation by number of adherents in each county**
 
 ```{r}
 md_county_population
@@ -327,7 +329,7 @@ Let's clean the population table. We're going to rename the "NAME" column to "co
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it shows the geometry for each county along with the county population -- geomety is basicaly just longitude and latitude**
 
 ```{r}
 md_county_population <- md_county_population |>
@@ -344,7 +346,7 @@ Now we can join them. We'll need to make sure the county names match. Let's chec
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - mainly the same things we have seen before but the information is joined with the adherents info and the gemoetry for the counties**
 
 ```{r}
 md_pop_with_religion <- md_county_population |>
@@ -357,7 +359,7 @@ Our final step before visualization, let's calculate the number of congregations
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it shows first ten counties, their populations, how many congregations and adherents they have as well as % of adherents for pop and which congregation is the biggest by the number of adherents, as well as the rate for them and the longitutde and latitude**
 
 ```{r}
 md_pop_with_religion <- md_county_population |>
@@ -374,7 +376,7 @@ Okay, now let's visualize. We're going to build a choropleth map, with the color
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - a map of the state of MD with each county and rate of adherents(?) in each**
 
 ```{r}
 
@@ -392,7 +394,7 @@ This map is okay, but the color scale makes it hard to draw fine-grained differe
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - this code shows the same thing as before but with clearer color**
 
 ```{r}
 ggplot() +
