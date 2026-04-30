@@ -103,7 +103,7 @@ Then load it:
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - it loads tigris, which is a package that you can use to download a shapefile that shows the outline of each Maryland county from the U.S. Census**
 
 ```{r}
 # install.packages('tigris')
@@ -114,7 +114,7 @@ Now, let's use the counties() function from tigris to pull down a shapefile of a
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer - It shoes specifics like the different state and county fips, longitutde and latitutde, and a bunch of other things that I don't really know. I'm not sure about the columns like LSAD or CBSAFP, I'm not sure what those all stand for.**
+**Task** Run the following code. Describe the output in the space below. **Answer - It shows specifics like the different state and county names, FIPS codes, longitudes and latitudes, and a bunch of other things from the 2024 Census data of all U.S. counties. I'm not sure about the columns like LSAD or CBSAFP, I'm not sure what those stand for.**
 
 ```{r}
 
@@ -265,7 +265,7 @@ First, let's load the libraries we'll need. We're also going to load tidycensus 
 
 ### Task: Load libraries
 
-**Task** Run the following code. Describe the output in the space below. Be sure to input your census api key. **Answer**
+**Task** Run the following code. Describe the output in the space below. Be sure to input your census api key. **Answer API KEY: f23e9b7c60f3c356678f297c9117fff98d3da6b0. ANSWER: the following code loads the libraries needed to observe the patterns of adherents across the state of Maryland (specifically in MD counties) using a choropleth map**
 
 ```{r}
 library(tidyverse)
@@ -295,7 +295,7 @@ Ultimately, we're going to join this county table with population data to the re
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer**
+**Task** Run the following code. Describe the output in the space below. **Answer - The followign code pulls data from the 2017-2025 period from the Census website. Data for MD counties (for population) and the longitude and latitutde in each coutny in the state of Maryland.**
 
 ```{r}
 md_county_population <- get_acs(geography = "county",
@@ -409,7 +409,7 @@ So let's change the color scale to a "log" scale, which will help us see those d
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer**
+**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer - this map gives the specific rates for each area in the state of maryland (county-wise), which zooms in on which counties have what in terms of differences in populations**
 
 ```{r}
 ggplot() +
