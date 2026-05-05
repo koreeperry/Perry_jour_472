@@ -123,7 +123,7 @@ So AND gives us the same answer we got before. What does using the OR operator g
 cp_churches_ind <- md_churches |> filter(CITY == "COLLEGE PARK" | AFFILIATION == 3)
 
 nrow(cp_churches_ind)
-```
+``` 
 
 **Answer is 4875**
 

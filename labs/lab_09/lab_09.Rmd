@@ -20,6 +20,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # load libraries here
+library(tidyverse)
+library(janitor)
 ```
 
 ## Questions
@@ -29,7 +31,16 @@ knitr::opts_chunk$set(echo = TRUE)
 You MUST do the following things when answering this question:
 
 * Load the `state_religion_comparison.csv` file from the data folder
+```{r}
+state_rel_compare <- read.csv("data/state_religion_comparison.csv")
+```
+
 * Filter it to the following states: Maryland, Virginia, Pennsylvania, Delaware, New Jersey, New York, and the District of Columbia
+```{r}
+state_rel_compare |>
+  filter(state, 'Maryland'
+```
+
 * Add a column converting "Adherents as % of Population" from a string (like `"43.47%"`) to a numeric value
 * Export that filtered dataframe to a CSV file using `write_csv`
 * Using that exported CSV, make a chart in Datawrapper. What kind of chart is up to you, so experiment with a few kinds of charts to see what answers the question above in the clearest way. Your chart MUST:
