@@ -1,0 +1,90 @@
+---
+title: "DATA ANALYSIS - KOREE PERRY (FINAL)"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+##Note: Data being used in this project:
+```{r}
+county_data <- read_csv("data/county_data.csv")
+```
+
+```{r}
+library(tidyverse)
+library(tigris)
+library(tidycensus)
+library(janitor)
+library(sf)
+library(ggrepel)
+library(tidygeocoder)
+```
+
+
+##Q1: Which counties that have similar diversity populations have different religious faiths at the top? (For example, does a county in Maryland that has a similar diversity percentage as one in another state near Maryland have the same congregations leading?) 
+```{r}
+q1selectedstates <- state_rel_census |>
+  group_by(`State Name`) |>
+  summarise(
+    count= n()
+  ) |>
+  
+  q1selectedstates |> filter("Maryland")
+
+
+```
+
+##Q2: Is there a correlation between age and religion in each state? (Scatterplot) - CHANGE QUESTION
+```{r}
+
+```
+
+##Q3: What are the top few states that have a majority versus the top few states that have a (somewhat equal) balance of congregations?
+```{r}
+q3top_staterel <- state_rel_census |>
+  select(`State Name`, `Group Name`, Adherents) %>% 
+  filter(!is.na(Adherents)) %>% 
+  pivot_wider(names_from = `Group Name`, values_from = Adherents) %>% 
+  
+##so this sections off every single state, every congregation name, and how many adherents each state has of every state. now, i want to see which states have a majority (thinking of looking at all 50 but ideally the top ten when i filter it all)
+  
+state_pop <- get_acs(geography = "state",
+              variables = c(population = "B01001_001"),
+              year = 2021,
+              geometry = TRUE)
+
+state_pop_with_religion <- state_pop |>
+  left_join(q3top_staterel, join_by(NAME == `State Name`)) 
+
+q3top_staterel |>
+  mutate(rate = `State Name`/`)
+  
+md_pop_with_religion <- md_county_population |>
+  left_join(md_county_religion, join_by(county == `County Name`)) |>
+  mutate(rate = Congregations/Adherents*10000) |>
+  arrange(desc(rate))
+```
+
+##Q4: Are there specific “pockets” of congregations across the state? (Mapping clusters of congregations)
+
+```{r}
+md_counties <- county_rel_census |>
+  filter(str_detect(`State Name`, "Maryland"))
+##this is just filtering the state to be specifically Maryland. now, i want to see where a few of the big congregations are clustered around the state
+
+
+```
+
+##Q5:
