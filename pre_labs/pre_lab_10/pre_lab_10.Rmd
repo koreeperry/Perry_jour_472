@@ -295,7 +295,7 @@ Ultimately, we're going to join this county table with population data to the re
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. **Answer - The followign code pulls data from the 2017-2025 period from the Census website. Data for MD counties (for population) and the longitude and latitutde in each coutny in the state of Maryland.**
+**Task** Run the following code. Describe the output in the space below. **Answer - The following code pulls data from the 2017-2025 period from the Census website. Data for MD counties (for population) and the longitude and latitutde in each coutny in the state of Maryland.**
 
 ```{r}
 md_county_population <- get_acs(geography = "county",
