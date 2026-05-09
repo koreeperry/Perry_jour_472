@@ -157,7 +157,7 @@ top_states |>
   theme_minimal()
 ```
 
-The ggplot universe is pretty big, and lots of people have made and released cool themes for you to use. Want to make your graphics look kind of like [The Economist's](https://www.economist.com/) graphics? There's a theme for that.
+The ggplot universe is pretty big, and lots of people have made and released cool themes for you to use. Want to make your graphics look kind of like [The Economist's](https://www.economist.com/) graphics? There's a theme for that. 
 
 First, you have to install and load a package that contains lots of extra themes, called [ggthemes](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/).
 
