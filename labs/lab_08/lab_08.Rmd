@@ -54,7 +54,18 @@ Compare the results here to those from the pre_lab_08 bar chart of states by con
 **A1.**
 
 ```{r}
+mega_megachurches <- megachurches |>
+  group_by(denomination) |>
+  summarise(
+    total_megachurches = n()) |>
+  mutate(pct_megachurches = (total_megachurches / sum(total_megachurches)) * 100) |>
+  arrange(desc(pct_megachurches)
+  )
 
+glimpse(mega_megachurches)
+
+ggplot(mega_megachurches) |>
+  arrange(desc(denomination))
 ```
 
 **Q2.** Let's visualize clergy political contributions over time using a line chart. Generate a dataframe with the total amount of contributions for each month, and then create a line chart to show the distribution of contributions over time. Your line chart must have:
