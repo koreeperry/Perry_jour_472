@@ -332,3 +332,11 @@ head(q5adherepercong, 20)
 ##This question/code was the simplest because for the longest time I didn't know what I wanted as my fifth question, but I was interested in seeing which groups had the most adherents compared to how many congregations they also had. I think it would be interesting to see in a journalist's sense which states these groups dominate in and why? Is it because of history, people who have moved there, etc.
 ```
 
+{r}
+FINAL MEMO
+
+After analyzing the United States' religion census data found that religious identity on the state level does not directly reflect religious identities from county to county. Some states, while dominated by a single religious group overall, do not have these same groups leading at the county level. In Maryland, as well as states surrounding it, different counties with similar levels of diversity (congregations-wise) routinely have different religions dominating. The mapping of different congregations also showed the distribution of these faiths over the state of Maryland. The research and reporting would be needed to look at whether factors like immigration, geographical differences between rural and urban areas, local history would uncover what the difference is between the landscapes on a county level versus a state level.
+
+To verify my findings, comparison between the religion census data and the additional demographic data given by the U.S. Census Bureau as well as other reporting on religious demigraphic in Maryland and the states surrounding it. Interviewing religious leaders, historians, residents and more in counties where faiths at the local level differ from the ones dominating the state. I'd also like to verify if the clustering of different congregations, once put on one full map of Maryland, shows the patterns of historical migration onto the land or different varying population patterns.
+```
+
