@@ -17,11 +17,6 @@ When you save the notebook, an HTML file containing the code and output will be 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
-##Note: Data being used in this project:
-```{r}
-county_data <- read_csv("data/county_data.csv")
-```
-
 ```{r}
 library(tidyverse)
 library(tigris)
@@ -31,60 +26,309 @@ library(sf)
 library(ggrepel)
 library(tidygeocoder)
 ```
+```{r}
+countydata <- read_csv("county_rel_census.csv") |> clean_names()
+metrodata <- read_csv("metro_rel_census.csv") |> clean_names()
+statedata <- read_csv("state_rel_census.csv") |> clean_names()
+nationdata <- read_csv("nation_rel_census.csv") |> clean_names()
+```
 
 
 ##Q1: Which counties that have similar diversity populations have different religious faiths at the top? (For example, does a county in Maryland that has a similar diversity percentage as one in another state near Maryland have the same congregations leading?) 
 ```{r}
-q1selectedstates <- state_rel_census |>
-  group_by(`State Name`) |>
+glimpse(countydata)
+
+q1_diversity <- countydata |>
+  group_by(state_name, county_name) |>
   summarise(
-    count= n()
+    total_groups = n()
   ) |>
-  
-  q1selectedstates |> filter("Maryland")
+  arrange(desc(total_groups))
 
+q1_top_rel <- countydata |>
+  inner_join(q1_diversity, join_by(state_name, county_name)) 
 
+q1_surroundstates <- q1_top_rel |>
+  filter(state_name == "Maryland" |
+         state_name == "Virginia" |
+         state_name == "Pennsylvania" |
+         state_name == "Delaware" |
+         state_name == "West Virginia"
+  ) |>
+  arrange(desc(total_groups))
+
+q1_max_adherents <- q1_surroundstates |>
+  group_by(state_name, county_name) |>
+  summarise( max_adherents = max(adherents, na.rm = TRUE)
+)
+
+q1full <- q1_surroundstates |>
+  inner_join(q1_max_adherents, join_by(state_name, county_name)) |>
+  filter(adherents == max_adherents) |>
+  arrange(desc(total_groups))
+
+head(q1full)
 ```
 
-##Q2: Is there a correlation between age and religion in each state? (Scatterplot) - CHANGE QUESTION
+##Q2: Are there any religious groups dominating at state level that also dominate at county level?
 ```{r}
+q2statetop <- statedata |>
+  group_by(state_name) |>
+  summarise(
+    max_state_adhere = max(adherents, na.rm = TRUE)
+  )
 
+q2_staterel <- statedata |>
+  inner_join(q2statetop, join_by(state_name)) |>
+  filter(adherents == max_state_adhere) |>
+  rename(statetopcong = group_name)
+
+q2countytop <- countydata |>
+group_by(state_name, county_name) |>
+  summarise(max_county_adhere = max(adherents, na.rm = TRUE))
+
+q2_countyrel <-countydata |>
+  inner_join(q2countytop, join_by(state_name, county_name)) |>
+  filter(adherents == max_county_adhere) |>
+  rename(countytopcong = group_name)
+
+q2comparison <-q2_countyrel |>
+  inner_join(q2_staterel, join_by(state_name)) |>
+  mutate(
+    boththesame = countytopcong == statetopcong) |>
+  arrange(desc(boththesame))
+  
+head(q2comparison, 20)
 ```
 
-##Q3: What are the top few states that have a majority versus the top few states that have a (somewhat equal) balance of congregations?
+##Q3: What are the top few states that have a majority versus the top few states that have a (somewhat equal) balance of congregations based on population of adherents?
 ```{r}
-q3top_staterel <- state_rel_census |>
-  select(`State Name`, `Group Name`, Adherents) %>% 
-  filter(!is.na(Adherents)) %>% 
-  pivot_wider(names_from = `Group Name`, values_from = Adherents) %>% 
-  
-##so this sections off every single state, every congregation name, and how many adherents each state has of every state. now, i want to see which states have a majority (thinking of looking at all 50 but ideally the top ten when i filter it all)
+q3top_staterel <- statedata |>
+  group_by(state_name) |>
+  summarise(
+    total_adherents = sum(adherents, na.rm = TRUE)
+  ) 
+
+##grouping census data by state and shows total number of adherent sin each state
   
 state_pop <- get_acs(geography = "state",
               variables = c(population = "B01001_001"),
               year = 2021,
               geometry = TRUE)
+##pop data from all states, the variable is the total pop (API key?)
 
 state_pop_with_religion <- state_pop |>
-  left_join(q3top_staterel, join_by(NAME == `State Name`)) 
+  left_join(q3top_staterel, join_by(NAME == state_name)) 
 
-q3top_staterel |>
-  mutate(rate = `State Name`/`)
-  
-md_pop_with_religion <- md_county_population |>
-  left_join(md_county_religion, join_by(county == `County Name`)) |>
-  mutate(rate = Congregations/Adherents*10000) |>
-  arrange(desc(rate))
+q3top_staterel <- q3top_staterel |>
+  mutate(rate = total_adherents)
+
+q3people_to_rel <- statedata |>
+  inner_join(q3top_staterel, join_by(state_name))
+
+q3people_to_rel <- q3people_to_rel |>
+  mutate(religion_pct = adherents/total_adherents)
+
+q3majority <- q3people_to_rel |>
+  group_by(state_name) |>
+  summarise(
+    largest = max(religion_pct, na.rm = TRUE) 
+  ) |>
+  arrange(desc(largest))
+
+q3minority <- tail(q3majority, 10)
+
+glimpse(q3majority)
+glimpse(q3minority)
 ```
 
-##Q4: Are there specific “pockets” of congregations across the state? (Mapping clusters of congregations)
+##Q4: Are there specific “pockets” of congregations across the state? (Mapping clusters of congregations) - since I don't have any zip data, I wasn't able to find any clusters of different congregations. I ended up going with the magma chart. 
 
 ```{r}
-md_counties <- county_rel_census |>
-  filter(str_detect(`State Name`, "Maryland"))
+md_counties <- countydata |>
+  filter(str_detect(state_name, "Maryland"))
 ##this is just filtering the state to be specifically Maryland. now, i want to see where a few of the big congregations are clustered around the state
 
+q4_pockets <- md_counties |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  ) |>
+arrange(desc(total_congregations))
+
+
+md_all <- counties(
+  state = "Maryland",
+  year = 2021)
+
+md_map_religion_all <- md_all |>
+  left_join(q4_pockets, join_by(GEOID == fips)) 
+
+
+ggplot(md_map_religion_all) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Overall Pocket Data of MD Congregations",
+       fill="Congregations")
 
 ```
+```{r}
+catholicmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Catholic")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
 
-##Q5:
+cathmap <- md_all |>
+  left_join(catholicmd, join_by(GEOID == fips))
+
+ggplot(cathmap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Catholic Congregations",
+       fill="Catholic Congregations")
+  
+```
+```{r}
+baptistmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Baptist")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+bapmap <- md_all |>
+  left_join(baptistmd, join_by(GEOID == fips))
+
+ggplot(bapmap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Baptist Congregations",
+       fill="Baptist Congregations")
+```
+```{r}
+methodistmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Methodist")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+methodistmap <- md_all |>
+  left_join(methodistmd, join_by(GEOID == fips))
+
+ggplot(methodistmap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Methodist Congregations",
+       fill="Methodist Congregations")
+```
+```{r}
+islamicmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Muslim")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+islammap <- md_all |>
+  left_join(islamicmd, join_by(GEOID == fips))
+
+ggplot(islammap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Islamic Congregations Map",
+       fill="Islamic Congregations")
+```
+```{r}
+judaismmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Jewish")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+jewishmap <- md_all |>
+  left_join(judaismmd, join_by(GEOID == fips))
+
+ggplot(jewishmap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Jewish Congregations Map",
+       fill="Jewish Congregations")
+```
+```{r}
+jehovahmd <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Jehovah's Witnesses")) |>
+  group_by(fips) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+jehovahmap <- md_all |>
+  left_join(jehovahmd, join_by(GEOID == fips))
+
+ggplot(jehovahmap) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="Jehovah's Witnesses Congregations Map",
+       fill="JW Congregations")
+```
+
+```{r}
+q4bigdata <- countydata |>
+  filter(state_name == "Maryland",
+         str_detect(group_name, "Muslim") |
+           str_detect(group_name, "Catholic")|
+           str_detect(group_name, "Methodist") |
+           str_detect(group_name, "Baptist")) |>
+           group_by(fips, group_name) |>
+  summarise(
+    total_congregations = sum(congregations, na.rm = TRUE)
+  )
+
+relmapall <- md_all |>
+  left_join(q4bigdata, join_by(GEOID == fips))
+
+ggplot(q4bigdata) +
+  geom_sf(aes(fill=total_congregations)) +
+  scale_fill_viridis_b(option="magma", trans = "log") +
+  theme_minimal() +
+  labs(title="All Congregations Map",
+       fill="Congregations")
+                    
+##for this part i tried to take all of the data i had for the four congregations i selected to then put them on one big map, but it wouldn't work, so i opted to making the overall map first and then selecting a few different faiths to see where they compare to the actual map. I added Jehovah's Witnesses and Judiasm after finding out this code would not work, so that's why they aren't included.          
+```
+
+##Q5:Which groups have the highest total adherent populations compared to their number of congregations?
+```{r}
+q5adherepercong <- statedata |>
+  group_by(group_name) |>
+  summarise(
+    total_adherents = sum(adherents, na.rm = TRUE),
+    total_congregations = sum(congregations, na.rm = TRUE)
+  ) |>
+  mutate(
+    adherents_per_cong = total_adherents / total_congregations
+  ) |>
+  arrange(desc(adherents_per_cong))
+
+head(q5adherepercong, 20)
+
+##This question/code was the simplest because for the longest time I didn't know what I wanted as my fifth question, but I was interested in seeing which groups had the most adherents compared to how many congregations they also had. I think it would be interesting to see in a journalist's sense which states these groups dominate in and why? Is it because of history, people who have moved there, etc.
+```
+
